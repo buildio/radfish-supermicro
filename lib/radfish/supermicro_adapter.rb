@@ -18,7 +18,7 @@ module Radfish
       super
       
       # Create the underlying Supermicro client
-      @supermicro_client = Supermicro::Client.new(
+      @supermicro_client = ::Supermicro::Client.new(
         host: host,
         username: username,
         password: password,
