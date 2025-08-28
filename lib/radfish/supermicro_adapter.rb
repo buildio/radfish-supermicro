@@ -115,6 +115,12 @@ module Radfish
       @supermicro_client.power_consumption
     end
     
+    def power_consumption_watts
+      # Extract just the current watts from the power_consumption hash
+      data = @supermicro_client.power_consumption
+      data["consumed_watts"] if data.is_a?(Hash)
+    end
+    
     # Storage
     
     def storage_controllers
