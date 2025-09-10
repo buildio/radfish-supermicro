@@ -349,6 +349,40 @@ module Radfish
       # Convert to OpenStruct for consistency
       volume_data.map { |volume| OpenStruct.new(volume) }
     end
+
+    def volume_drives(volume)
+      raise ArgumentError, "Volume required" unless volume
+      controller_id = extract_controller_identifier(volume.controller)
+      # Try to fetch volume details to get Links->Drives
+      raw = volume.adapter_data
+      odata_id = nil
+      if raw.respond_to?(:[])
+        odata_id = raw['@odata.id'] || raw[:'@odata.id']
+      elsif raw.respond_to?(:instance_variable_get)
+        table = raw.instance_variable_get(:@table) rescue nil
+        odata_id = table && (table['@odata.id'] || table[:'@odata.id'])
+      end
+      drive_ids = []
+      if odata_id
+        begin
+          response = @supermicro_client.authenticated_request(:get, odata_id)
+          if response.status == 200
+            data = JSON.parse(response.body)
+            refs = data.dig('Links', 'Drives') || []
+            drive_ids = refs.map { |r| (r['@odata.id'] || '').split('/').last }.compact
+          end
+        rescue => e
+          debug "Error fetching volume details: #{e.message}", 1, :yellow
+        end
+      end
+      # Fallback: if no odata links, return all controller drives (unknown membership)
+      all_drives = @supermicro_client.drives(controller_id) rescue []
+      if drive_ids.any?
+        all_drives = all_drives.select { |d| d['id'] == d[:id] rescue false } if all_drives.is_a?(Array)
+        all_drives.select! { |d| drive_ids.include?(d['id'] || d[:id]) }
+      end
+      all_drives.map { |d| OpenStruct.new(d) }
+    end
     
     def storage_summary
       @supermicro_client.storage_summary
