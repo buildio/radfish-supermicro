@@ -320,12 +320,24 @@ module Radfish
       end
     end
     
-    def drives
-      @supermicro_client.drives
+    def drives(controller_id)
+      # The Supermicro gem now requires controller_id following natural Redfish pattern
+      raise ArgumentError, "Controller ID is required" unless controller_id
+      
+      drive_data = @supermicro_client.drives(controller_id)
+      
+      # Convert to OpenStruct for consistency
+      drive_data.map { |drive| OpenStruct.new(drive) }
     end
     
-    def volumes
-      @supermicro_client.volumes
+    def volumes(controller_id)
+      # The Supermicro gem now requires controller_id following natural Redfish pattern
+      raise ArgumentError, "Controller ID is required" unless controller_id
+      
+      volume_data = @supermicro_client.volumes(controller_id)
+      
+      # Convert to OpenStruct for consistency
+      volume_data.map { |volume| OpenStruct.new(volume) }
     end
     
     def storage_summary
