@@ -316,6 +316,12 @@ module Radfish
         if controller["drives"]
           controller["drives"] = controller["drives"].map { |drive| OpenStruct.new(drive) }
         end
+        # Normalize expected top-level fields
+        sc = controller["StorageControllers"]&.first || controller["storage_controllers"]&.first
+        controller["model"] ||= (sc && (sc["Model"] || sc["model"]))
+        controller["firmware_version"] ||= (sc && sc["FirmwareVersion"]) if sc
+        controller["drives_count"] ||= (controller["drives"]&.size || controller["Drives"]&.size)
+        # Keep status as already present; other fields may be nil
         OpenStruct.new(controller)
       end
     end
