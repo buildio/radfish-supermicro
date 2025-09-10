@@ -203,6 +203,35 @@ module Radfish
       }.compact
     end
     
+    # Individual accessor methods for Core::System interface
+    def service_tag
+      @service_tag ||= begin
+        info = @supermicro_client.system_info
+        info["manager_uuid"]&.split('-')&.last || info["serial"]
+      end
+    end
+    
+    def make
+      @make ||= begin
+        info = @supermicro_client.system_info
+        manufacturer = info["manufacturer"]
+        if manufacturer
+          # Strip "Super Micro", "Super Micro Computer", etc. to just "Supermicro"
+          manufacturer.gsub(/Super\s*Micro(\s+Computer.*)?/i, 'Supermicro')
+        else
+          "Supermicro"
+        end
+      end
+    end
+    
+    def model
+      @model ||= @supermicro_client.system_info["model"]
+    end
+    
+    def serial
+      @serial ||= @supermicro_client.system_info["serial"]
+    end
+    
     def cpus
       # The supermicro gem returns an array of CPU hashes
       # Convert them to OpenStruct objects for dot notation access
@@ -251,7 +280,11 @@ module Radfish
       end
     end
     
-    # Note: Supermicro doesn't provide a temperatures method
+    def temperatures
+      # Supermicro doesn't provide a dedicated temperatures method
+      # Return empty array to satisfy the interface
+      []
+    end
     
     def psus
       # Convert hash array to OpenStruct objects for dot notation access
