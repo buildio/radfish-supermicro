@@ -346,6 +346,24 @@ module Radfish
       
       volume_data = @supermicro_client.volumes(controller_id)
       
+      # Normalize basic fields for consistency, and attach drive refs if missing
+      volume_data.each do |v|
+        v["raid_type"] ||= v["RAIDType"] if v["RAIDType"]
+        v["volume_type"] ||= v["VolumeType"] if v["VolumeType"]
+        v["health"] ||= v.dig("Status", "Health") if v["Status"].is_a?(Hash)
+        if v["drives"].nil? && v["@odata.id"]
+          begin
+            resp = @supermicro_client.authenticated_request(:get, v["@odata.id"])
+            if resp.status == 200
+              data = JSON.parse(resp.body)
+              v["drives"] = data.dig('Links', 'Drives') || []
+            end
+          rescue => e
+            debug "Could not fetch volume drives: #{e.message}", 2, :yellow
+          end
+        end
+      end
+      
       # Convert to OpenStruct for consistency
       volume_data.map { |volume| OpenStruct.new(volume) }
     end
