@@ -320,9 +320,11 @@ module Radfish
       end
     end
     
-    def drives(controller_id)
-      # The Supermicro gem now requires controller_id following natural Redfish pattern
-      raise ArgumentError, "Controller ID is required" unless controller_id
+    def drives(controller)
+      # The Supermicro gem requires a controller identifier; derive it from the controller
+      raise ArgumentError, "Controller required" unless controller
+      controller_id = extract_controller_identifier(controller)
+      raise ArgumentError, "Controller identifier missing" unless controller_id
       
       drive_data = @supermicro_client.drives(controller_id)
       
@@ -330,9 +332,11 @@ module Radfish
       drive_data.map { |drive| OpenStruct.new(drive) }
     end
     
-    def volumes(controller_id)
-      # The Supermicro gem now requires controller_id following natural Redfish pattern
-      raise ArgumentError, "Controller ID is required" unless controller_id
+    def volumes(controller)
+      # The Supermicro gem requires a controller identifier; derive it from the controller
+      raise ArgumentError, "Controller required" unless controller
+      controller_id = extract_controller_identifier(controller)
+      raise ArgumentError, "Controller identifier missing" unless controller_id
       
       volume_data = @supermicro_client.volumes(controller_id)
       
@@ -342,6 +346,20 @@ module Radfish
     
     def storage_summary
       @supermicro_client.storage_summary
+    end
+
+    private
+
+    def extract_controller_identifier(controller)
+      raw = controller.respond_to?(:adapter_data) ? controller.adapter_data : controller
+      if defined?(OpenStruct) && raw.is_a?(OpenStruct)
+        table = raw.instance_variable_get(:@table)
+        table && (table[:"@odata.id"] || table["@odata.id"]) || controller.id
+      elsif raw.respond_to?(:[])
+        raw['@odata.id'] || raw[:'@odata.id'] || controller.id
+      else
+        controller.id
+      end
     end
     
     # Virtual Media
