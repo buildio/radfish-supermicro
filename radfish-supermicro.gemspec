@@ -25,8 +25,8 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "radfish", "~> 0.1"
-  spec.add_dependency "supermicro", "~> 0.1"
+  spec.add_dependency "radfish", "~> 0.3", ">= 0.3.0"
+  spec.add_dependency "supermicro", "~> 0.2", ">= 0.2.0"
   
   spec.add_development_dependency "rspec", "~> 3.0"
 end
