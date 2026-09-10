@@ -493,8 +493,8 @@ module Radfish
       options.map { |opt| OpenStruct.new(opt) }
     end
     
-    def set_boot_override(target, enabled: "Once", mode: nil)
-      @supermicro_client.set_boot_override(target, enabled: enabled, mode: mode)
+    def set_boot_override(target, persistence: nil, mode: nil)
+      @supermicro_client.set_boot_override(target, persistence: persistence, mode: mode)
     end
     
     def clear_boot_override
@@ -509,24 +509,24 @@ module Radfish
       @supermicro_client.get_boot_devices
     end
     
-    def boot_to_pxe(enabled: "Once", mode: nil)
-      @supermicro_client.boot_to_pxe(enabled: enabled, mode: mode)
+    def boot_to_pxe(persistence: nil, mode: nil)
+      @supermicro_client.boot_to_pxe(persistence: persistence, mode: mode)
     end
     
-    def boot_to_disk(enabled: "Once", mode: nil)
-      @supermicro_client.boot_to_disk(enabled: enabled, mode: mode)
+    def boot_to_disk(persistence: nil, mode: nil)
+      @supermicro_client.boot_to_disk(persistence: persistence, mode: mode)
     end
     
-    def boot_to_cd(enabled: "Once", mode: nil)
-      @supermicro_client.boot_to_cd(enabled: enabled, mode: mode)
+    def boot_to_cd(persistence: nil, mode: nil)
+      @supermicro_client.boot_to_cd(persistence: persistence, mode: mode)
     end
     
-    def boot_to_usb(enabled: "Once", mode: nil)
-      @supermicro_client.boot_to_usb(enabled: enabled, mode: mode)
+    def boot_to_usb(persistence: nil, mode: nil)
+      @supermicro_client.boot_to_usb(persistence: persistence, mode: mode)
     end
     
-    def boot_to_bios_setup(enabled: "Once", mode: nil)
-      @supermicro_client.boot_to_bios_setup(enabled: enabled, mode: mode)
+    def boot_to_bios_setup(persistence: nil, mode: nil)
+      @supermicro_client.boot_to_bios_setup(persistence: persistence, mode: mode)
     end
     
     def configure_boot_settings(persistence: nil, mode: nil)
